@@ -6,6 +6,7 @@
 
 #include "process.h"
 #include "processor.h"
+#include "linux_parser.h"
 
 class System {
  public:
@@ -18,8 +19,11 @@ class System {
   std::string Kernel();               // TODO: See src/system.cpp
   std::string OperatingSystem();      // TODO: See src/system.cpp
 
-  // TODO: Define any necessary private members
  private:
+  std::string kernel_ = LinuxParser::Kernel();
+  std::string operating_system_ = LinuxParser::OperatingSystem();
+  int total_processes_ = LinuxParser::TotalProcesses();
+  int running_processes_ = LinuxParser::RunningProcesses();
   Processor cpu_ = {};
   std::vector<Process> processes_ = {};
 };
