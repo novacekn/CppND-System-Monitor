@@ -21,20 +21,17 @@ Processor& System::Cpu() { return cpu_; }
 // TODO: Return a container composed of the system's processes
 vector<Process>& System::Processes() { return processes_; }
 
-// TODO: Return the number of seconds since the system started running
-long int System::UpTime() { return 0; }
-
-// TODO: Return the system's memory utilization
-float System::MemoryUtilization() { return 0.0; }
-
 
 
 // COMPLETED IMPLEMENTATIONS
+float System::MemoryUtilization() { return memory_utilization_; }
 
-std::string System::Kernel() { return System::Kernel(); }
+std::string System::Kernel() { return kernel_; }
 
 std::string System::OperatingSystem() { return operating_system_; }
 
 int System::RunningProcesses() { return running_processes_; }
 
 int System::TotalProcesses() { return total_processes_; }
+
+long System::UpTime() { return uptime_; }

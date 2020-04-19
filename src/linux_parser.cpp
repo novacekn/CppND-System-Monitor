@@ -7,10 +7,14 @@
 
 using std::stof;
 using std::stoi;
+using std::stol;
 using std::string;
 using std::to_string;
 using std::vector;
 
+
+
+// COMPLETED IMPLEMENTATIONS
 string LinuxParser::OperatingSystem() {
   string line;
   string key;
@@ -62,28 +66,6 @@ vector<int> LinuxParser::Pids() {
   return pids;
 }
 
-// TODO: Read and return the system memory utilization
-float LinuxParser::MemoryUtilization() { return 0.0; }
-
-// TODO: Read and return the system uptime
-long LinuxParser::UpTime() { return 0; }
-
-// TODO: Read and return the number of jiffies for the system
-long LinuxParser::Jiffies() { return 0; }
-
-// TODO: Read and return the number of active jiffies for a PID
-// REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
-
-// TODO: Read and return the number of active jiffies for the system
-long LinuxParser::ActiveJiffies() { return 0; }
-
-// TODO: Read and return the number of idle jiffies for the system
-long LinuxParser::IdleJiffies() { return 0; }
-
-// TODO: Read and return CPU utilization
-vector<string> LinuxParser::CpuUtilization() { return {}; }
-
 int LinuxParser::TotalProcesses() {
 	string line, key, value;
 	std::ifstream filestream(kProcDirectory + kStatFilename);
@@ -100,7 +82,7 @@ int LinuxParser::TotalProcesses() {
 	return 0; 
 }
 
-int LinuxParser::RunningProcesses() { 
+int LinuxParser::RunningProcesses() {
 	string line, key, value;
 	std::ifstream filestream(kProcDirectory + kStatFilename);
 	if (filestream.is_open()) {
@@ -115,6 +97,81 @@ int LinuxParser::RunningProcesses() {
 	}
 	return 0; 
 }
+
+long LinuxParser::UpTime() {
+	string line, system, idle;
+	std::ifstream filestream(kProcDirectory + kUptimeFilename);
+	if (filestream.is_open()) {
+		std::getline(filestream, line);
+		std::istringstream linestream(line);
+		linestream >> system >> idle;
+		return stol(system) + stol(idle);  // Not positive if I was supposed to add the two number to get total time or not
+	}
+	return 0;
+}
+
+float LinuxParser::MemoryUtilization() {
+	string line, key, value, kb;
+	float mem_total, mem_free;
+	std::ifstream filestream(kProcDirectory + kMeminfoFilename);
+	if (filestream.is_open()) {
+		while (std::getline(filestream, line)) {
+			std::istringstream linestream(line);
+			while (linestream >> key >> value >> kb) {
+				if (key == "MemTotal:") {
+					mem_total = stof(value);
+				} else if (key == "MemFree:") {
+					mem_free = stof(value);
+				}
+			}
+		}
+	}
+	return ((mem_total - mem_free) / mem_total);
+}
+
+long LinuxParser::ActiveJiffies() {
+	string line, cpu, user, nice, system, idle, iowait, irq, softirq, steal, guest, guest_nice;
+	std::ifstream filestream(kProcDirectory + kStatFilename);
+	if (filestream.is_open()) {
+		std::getline(filestream, line);
+		std::istringstream linestream(line);
+		while (linestream >> cpu >> user >> nice >> system >> idle >> iowait >> irq >> softirq >> steal >> guest >> guest_nice) {
+			if (cpu == "cpu") {
+				return stol(user) + stol(nice) + stol(system) + stol(irq) + stol(softirq) + stol(steal) + stol(guest) + stol(guest_nice);
+			}
+		}
+	}
+	return 0; 
+}
+
+long LinuxParser::IdleJiffies() {
+	string line, cpu, user, nice, system, idle, iowait;
+	std::ifstream filestream(kProcDirectory + kStatFilename);
+	if (filestream.is_open()) {
+		while (std::getline(filestream, line)) {
+			std::istringstream linestream(line);
+			while (linestream >> cpu >> user >> nice >> system >> idle >> iowait) {
+				if (cpu == "cpu") {
+					return stol(idle) + stol(iowait);
+				}
+			}
+		}
+	}
+	return 0; 
+}
+
+long LinuxParser::Jiffies() { return ActiveJiffies() + IdleJiffies(); }
+
+
+
+// TODO IMPLEMENTATIONS
+
+// TODO: Read and return the number of active jiffies for a PID
+// REMOVE: [[maybe_unused]] once you define the function
+long LinuxParser::ActiveJiffies(int pid[[maybe_unused]]) { return 0; }
+
+// TODO: Read and return CPU utilization
+vector<string> LinuxParser::CpuUtilization() { return {}; }
 
 // TODO: Read and return the command associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
