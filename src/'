@@ -14,7 +14,7 @@ class Process {
 	this->pid_ = pid;
 	this->user_ = user;
 	this->command_ = command;
-	this->cpu_utilization_ = (float)active_jiffies / (float)LinuxParser::Jiffies();
+	this->cpu_utilization_ = cpu_utilization;
 	this->ram_ = ram;
 	this->uptime_ = uptime;
   }
